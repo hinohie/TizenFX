@@ -178,7 +178,15 @@ namespace Tizen.NUI
         /// The size will be assigned to the actor.
         /// </summary>
         [Description("USE_ASSIGNED_SIZE")]
-        UseAssignedSize
+        UseAssignedSize,
+
+        /// <summary>
+        /// The size always equal with parent
+        /// Note : This Property only working without layout. If layout is setting, Undefined Behavior
+        /// </summary>
+        /// <remarks>Hidden API: Only for inhouse or developing usage. The behavior and interface can be changed anytime.</remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        FillToParentAlways
     }
 
     /// <summary>
