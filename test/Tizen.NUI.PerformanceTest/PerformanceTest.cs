@@ -23,8 +23,8 @@ using Tizen.NUI.Constants;
 
 class PerformanceTestExample : NUIApplication
 {
-    const uint ROWS_COUNT = 40;
-    const uint COLUMNS_COUNT = 40;
+    const uint ROWS_COUNT = 10;
+    const uint COLUMNS_COUNT = 4000;
     const uint TOTAL_COLUMNS_COUNT = 80;
     const uint DURATION_PER_COLUMNS = 50; // miliseconds
     // Increase animation time cause OnTick time can be delayed.
@@ -168,6 +168,8 @@ class PerformanceTestExample : NUIApplication
     }
     bool OnTick(object o, EventArgs e)
     {
+        ElementsTest();
+        /*
         CreateColumnView();
         if(mCreateCount < mColumnsCount)
         {
@@ -178,7 +180,78 @@ class PerformanceTestExample : NUIApplication
 
             timer.Start();
         }
+        */
         return false;
+    }
+
+    Statistic elementAddStatistic = new Statistic();
+    Statistic elementRemoveStatistic = new Statistic();
+    View elementRootView;
+    void ElementsTest()
+    {
+        ++mCreateCount;
+        Tizen.Log.Error("NUI.PerfNew", $"Test start!\n");
+        DateTime startTime;
+        DateTime endTime;
+
+        startTime = DateTime.Now;
+        if (elementRootView != null)
+        {
+            elementRootView.DisposeRecursively();
+            elementRootView = null;
+        }
+
+        this.FlushUpdateMessages();
+        endTime = DateTime.Now;
+        Tizen.Log.Error("NUI.PerfNew", $"Unparent Spend time : {(endTime - startTime).TotalMilliseconds} ms\n");
+        if(mCreateCount > 1)
+        {
+            elementRemoveStatistic.add((endTime - startTime).TotalMilliseconds);
+        }
+
+        startTime = DateTime.Now;
+        elementRootView = new View();
+        mWindow.Add(elementRootView);
+        View lastView = elementRootView;
+        for(int i=0; i<mRowsCount; i++)
+        {
+            View currentView = new View();
+            lastView.Add(currentView);
+            lastView = currentView;
+        }
+        for(int i=0; i<mRowsCount; i++)
+        {
+            View currentView = new View();
+            lastView.Add(currentView);
+        }
+        lastView.SizeWidth = 100;
+        lastView.SizeHeight = 100;
+        lastView.BackgroundColor = Color.Red;
+        this.FlushUpdateMessages();
+        endTime = DateTime.Now;
+        Tizen.Log.Error("NUI.PerfNew", $"Add Spend time : {(endTime - startTime).TotalMilliseconds} ms\n");
+        if(mCreateCount > 1)
+        {
+            elementAddStatistic.add((endTime - startTime).TotalMilliseconds);
+        }
+
+        FullGC();
+        if(mCreateCount >= mColumnsCount)
+        {
+            Tizen.Log.Error("NUI.PerfNew", $"Average of Add {mRowsCount} : {elementAddStatistic.getTrimedAverage()} ms\n");
+            Tizen.Log.Error("NUI.PerfNew", $"Average of Remove {mRowsCount} : {elementRemoveStatistic.getTrimedAverage()} ms\n");
+            Deactivate();
+            Exit();
+        }
+        else
+        {
+            // Start next phase.
+            Timer timer = new Timer(mDurationPerColumns);
+            timer.Tick += OnTick;
+            mTimerList.AddLast(timer);
+
+            timer.Start();
+        }
     }
     void CreateColumnView()
     {
