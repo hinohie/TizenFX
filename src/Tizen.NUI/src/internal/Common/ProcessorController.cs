@@ -104,6 +104,8 @@ namespace Tizen.NUI
 
                 processorCallback = new ProcessorEventHandler(Process);
                 Interop.ProcessorController.SetCallback(SwigCPtr, processorCallback);
+                Interop.Counter.RegisterSizeOf("TotalCSharpMemory", (uint)GC.GetTotalMemory(false));
+                Interop.Counter.Increase("TotalCSharpMemory");
                 NDalicPINVOKE.ThrowExceptionIfExists();
             }
         }
@@ -138,6 +140,7 @@ namespace Tizen.NUI
             ProcessorEvent = null;
             LayoutProcessorEvent = null;
             initialized = false;
+            Interop.Counter.Decrease("TotalCSharpMemory");
 
             GC.SuppressFinalize(this);
 

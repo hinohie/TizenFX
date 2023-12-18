@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 /*
  * Copyright(c) 2022 Samsung Electronics Co., Ltd.
  *
@@ -101,6 +102,20 @@ namespace Tizen.NUI
                     registerMe = false;
                 }
             }
+            unsafe
+            {
+                try
+                {
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 0u);
+                }
+                catch(Exception e)
+                {
+                    Tizen.Log.Error("NUI", $"{e.Message}");
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 1);
+                }
+                Interop.Counter.Increase(this.GetType().FullName);
+                Interop.Counter.RegisterSizeOf("TotalCSharpMemory", (uint)GC.GetTotalMemory(false));
+            }
 
             disposeDebuggingCtor();
             DebugFileLogging.Instance.WriteLog($" BaseHandle.contructor with cMemeryOwn and cRegister END");
@@ -126,6 +141,20 @@ namespace Tizen.NUI
                     registerMe = false;
                 }
             }
+            unsafe
+            {
+                try
+                {
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 0u);
+                }
+                catch(Exception e)
+                {
+                    Tizen.Log.Error("NUI", $"{e.Message}");
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 1);
+                }
+                Interop.Counter.Increase(this.GetType().FullName);
+                Interop.Counter.RegisterSizeOf("TotalCSharpMemory", (uint)GC.GetTotalMemory(false));
+            }
 
             disposeDebuggingCtor();
             DebugFileLogging.Instance.WriteLog($" BaseHandle.contructor with cMemeryOwn END");
@@ -148,6 +177,20 @@ namespace Tizen.NUI
                 {
                     registerMe = false;
                 }
+            }
+            unsafe
+            {
+                try
+                {
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 0u);
+                }
+                catch(Exception e)
+                {
+                    Tizen.Log.Error("NUI", $"{e.Message}");
+                    Interop.Counter.RegisterSizeOf(this.GetType().FullName, 1);
+                }
+                Interop.Counter.Increase(this.GetType().FullName);
+                Interop.Counter.RegisterSizeOf("TotalCSharpMemory", (uint)GC.GetTotalMemory(false));
             }
 
             disposeDebuggingCtor();
@@ -616,6 +659,8 @@ namespace Tizen.NUI
             }
 
             disposed = true;
+            Interop.Counter.Decrease(this.GetType().FullName);
+            Interop.Counter.RegisterSizeOf("TotalCSharpMemory", (uint)GC.GetTotalMemory(false));
             DebugFileLogging.Instance.WriteLog($"BaseHandle.Dispose({type}) END");
             DebugFileLogging.Instance.WriteLog($"=============================");
             NUILog.Debug($"BaseHandle.Dispose({type}) END");
