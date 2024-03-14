@@ -183,7 +183,7 @@ namespace Tizen.NUI
         {
         }
 
-        internal global::System.Runtime.InteropServices.HandleRef SwigCPtr
+        public global::System.Runtime.InteropServices.HandleRef SwigCPtr
         {
             get => swigCPtr;
             set

@@ -888,7 +888,7 @@ namespace Tizen.NUI.BaseComponents
         /// After call this API, All image properties updated.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void UpdateImage()
+        public override void UpdateImage()
         {
             if (!imagePropertyUpdatedFlag) return;
 

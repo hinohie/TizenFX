@@ -1668,7 +1668,7 @@ namespace Tizen.NUI.BaseComponents
         /// Please call this ImageView.UpdateImage() API.
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void UpdateImage()
+        public virtual void UpdateImage()
         {
             if (!imagePropertyUpdatedFlag) return;
 
@@ -1842,7 +1842,7 @@ namespace Tizen.NUI.BaseComponents
             }
             foreach (var key in cachedImagePropertyKeyList)
             {
-                PropertyValue value = map.Find(key);
+                using PropertyValue value = map.Find(key);
                 if (value != null)
                 {
                     // Update-or-Insert new value
