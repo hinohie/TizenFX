@@ -54,12 +54,12 @@ class Scene3DSample : NUIApplication
      */
     private static readonly List<string> ModelUrlList = new List<string>()
     {
+        //Get from KhronosGroup https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/MorphStressTest
+        "MorphStressTest/MorphStressTest.gltf",
+
         // Model reference : https://sketchfab.com/models/b81008d513954189a063ff901f7abfe4
         // Get from KhronosGroup https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
         "DamagedHelmet/DamagedHelmet.gltf",
-
-        //Get from KhronosGroup https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/MorphStressTest
-        "MorphStressTest/MorphStressTest.gltf",
 
         // Get from KhronosGroup https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/2CylinderEngine
         "2CylinderEngine/2CylinderEngine_e.gltf",
@@ -126,6 +126,9 @@ class Scene3DSample : NUIApplication
     const int cameraAnimationDurationMilliseconds = 2000; // milliseconds
     #endregion
 
+    Timer timer;
+    int tickCount = 0;
+
     protected void CreateSceneView()
     {
         mSceneView = new SceneView()
@@ -159,6 +162,26 @@ class Scene3DSample : NUIApplication
         SetupSceneViewCamera(mSceneView);
 
         mWindow.Add(mSceneView);
+
+        timer = new Timer(16);
+        timer.Tick += (o, e) =>{
+            if (mModel != null && mModelLoadFinished)
+            {
+                MotionData data = new MotionData();
+
+                tickCount++;
+
+                for(int i=0; i<8; i++)
+                {
+                    float ff = (float)(tickCount % (93 + i)) / 100.0f;
+                    data.Add(new BlendShapeIndex($"Key {i+1}"), new MotionValue(new PropertyValue(ff)));
+                }
+
+                mModel.SetMotionData(data);
+            }
+            return true;
+        };
+        timer.Start();
     }
     private void SetupSceneViewCamera(SceneView sceneView)
     {
@@ -241,7 +264,7 @@ class Scene3DSample : NUIApplication
                 if (mModelAnimation != null)
                 {
                     mModelAnimation.Looping = true;
-                    mModelAnimation.Play();
+                    //mModelAnimation.Play();
                 }
             }
             // You can apply camera properties if the camera parameter exists.
@@ -279,7 +302,7 @@ class Scene3DSample : NUIApplication
             // Auto rotate model only if it don't have camera.
             if (mModel.GetCameraCount() == 0u)
             {
-                mModelRotateAnimation.Play();
+                //mModelRotateAnimation.Play();
             }
 
             mModelLoadFinished = true;
@@ -308,7 +331,7 @@ class Scene3DSample : NUIApplication
         mAnimateMotionData = new MotionData();
 
         mAnimateMotionData.Duration = modelMotionAnimationDurationMilliseconds;
-
+        /*
         mStaticMotionData.Add(
             new MotionTransformIndex()
             {
@@ -369,6 +392,11 @@ class Scene3DSample : NUIApplication
             value.KeyFramesValue.Add(1.0f, 1.0f * ((float)Math.Abs(i - 3.5f) + 0.5f) / 4.0f);
 
             mAnimateMotionData.Add(index, value);
+        }
+        */
+        for (int i = 0; i < 8; ++i)
+        {
+            mAnimateMotionData.Add(new BlendShapeIndex(new PropertyKey("Main"), new PropertyKey(i)), new MotionValue(new PropertyValue(1.0f)));
         }
     }
 
@@ -456,19 +484,26 @@ class Scene3DSample : NUIApplication
                     {
                         if (mModel != null && mModelLoadFinished)
                         {
-                            mMotionAnimation = mModel.GenerateMotionDataAnimation(mAnimateMotionData);
+                            CreateMotionData();
+                            //mMotionAnimation = mModel.GenerateMotionDataAnimation(mAnimateMotionData);
+
+                            // Stop original model animation
+                            mModelAnimation.Stop();
+
+                            mModel.SetMotionData(mAnimateMotionData);
 
                             if (mMotionAnimation != null)
                             {
-                                // Stop original model animation
-                                mModelAnimation.Stop();
-
                                 mModel.SetMotionData(mStaticMotionData);
                                 mMotionAnimation.Looping = true;
                                 mMotionAnimation.BlendPoint = 0.25f;
                                 mMotionAnimation.Play();
                                 Tizen.Log.Error("NUI", $"Animate pre-defined motion data!\n");
                             }
+
+                            mStaticMotionData?.Dispose();
+                            mStaticRevertMotionData?.Dispose();
+                            mAnimateMotionData?.Dispose();
                         }
                     }
                     break;
@@ -487,12 +522,18 @@ class Scene3DSample : NUIApplication
                     mMotionAnimation.Dispose();
                     mMotionAnimation = null;
 
+                    CreateMotionData();
+
                     // Revert motion data
                     mModel.SetMotionData(mStaticRevertMotionData);
 
-                    // Replay original model animation
-                    mModelAnimation.Play();
+                    mStaticMotionData?.Dispose();
+                    mStaticRevertMotionData?.Dispose();
+                    mAnimateMotionData?.Dispose();
                 }
+
+                // Replay original model animation
+                mModelAnimation.Play();
             }
         }
     }
