@@ -924,10 +924,12 @@ namespace Tizen.NUI.BaseComponents
 
             bool consumed = false;
 
+            Tizen.Log.Error("NUI",$"Before touch\n");
             if (touchDataEventHandler != null)
             {
                 consumed = touchDataEventHandler(this, e);
             }
+            Tizen.Log.Error("NUI",$"After touch\n");
 
             if (enableControlState && !consumed)
             {
