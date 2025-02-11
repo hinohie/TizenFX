@@ -17,41 +17,32 @@
 
 namespace Tizen.NUI
 {
+    [EditorBrowsable(EditorBrowsableState.Never)]
     internal class AsyncImageLoader : BaseHandle
     {
+        private EventHandlerWithReturnType<object, KeyEventArgs, bool> imageLoadedEventHandler;
+        private KeyCallbackType imageLoadedCallback;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void ImageLoadedSignalType(uint loadingTaskId, IntPtr pixelData);
+
         internal AsyncImageLoader(global::System.IntPtr cPtr, bool cMemoryOwn) : base(cPtr, cMemoryOwn)
         {
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void ReleaseSwigCPtr(System.Runtime.InteropServices.HandleRef swigCPtr)
         {
             Interop.AsyncImageLoader.DeleteAsyncImageLoader(swigCPtr);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public AsyncImageLoader() : this(Interop.AsyncImageLoader.New(), true)
         {
             if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
-
-        }
-        public AsyncImageLoader(AsyncImageLoader handle) : this(Interop.AsyncImageLoader.NewAsyncImageLoader(AsyncImageLoader.getCPtr(handle)), true)
-        {
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
         }
 
-        public AsyncImageLoader Assign(AsyncImageLoader handle)
-        {
-            AsyncImageLoader ret = new AsyncImageLoader(Interop.AsyncImageLoader.Assign(SwigCPtr, AsyncImageLoader.getCPtr(handle)), false);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
-            return ret;
-        }
-
-        public static AsyncImageLoader DownCast(BaseHandle handle)
-        {
-            AsyncImageLoader ret = Registry.GetManagedBaseHandleFromNativePtr(handle) as AsyncImageLoader;
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
-            return ret;
-        }
-
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public uint Load(string url)
         {
             uint ret = Interop.AsyncImageLoader.Load(SwigCPtr, url);
@@ -59,6 +50,7 @@ namespace Tizen.NUI
             return ret;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public uint Load(string url, Uint16Pair dimensions)
         {
             uint ret = Interop.AsyncImageLoader.Load(SwigCPtr, url, Uint16Pair.getCPtr(dimensions));
@@ -66,6 +58,7 @@ namespace Tizen.NUI
             return ret;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public uint Load(string url, Uint16Pair dimensions, FittingModeType fittingMode, SamplingModeType samplingMode, bool orientationCorrection)
         {
             uint ret = Interop.AsyncImageLoader.Load(SwigCPtr, url, Uint16Pair.getCPtr(dimensions), (int)fittingMode, (int)samplingMode, orientationCorrection);
@@ -73,6 +66,7 @@ namespace Tizen.NUI
             return ret;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool Cancel(uint loadingTaskId)
         {
             bool ret = Interop.AsyncImageLoader.Cancel(SwigCPtr, loadingTaskId);
@@ -80,11 +74,87 @@ namespace Tizen.NUI
             return ret;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void CancelAll()
         {
             Interop.AsyncImageLoader.CancelAll(SwigCPtr);
             if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
         }
 
+        /// <summary>
+        /// You can override it to clean-up your own resources
+        /// </summary>
+        /// <param name="type">DisposeTypes</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected override void Dispose(DisposeTypes type)
+        {
+            if (Disposed)
+            {
+                return;
+            }
+
+            if (type == DisposeTypes.Explicit)
+            {
+                //Called by User
+                //Release your own managed resources here.
+                //You should release all of your own disposable objects here.
+
+                if (imageLoadedCallback != null)
+                {
+                    // TODO : Implement here!
+                    NDalicPINVOKE.ThrowExceptionIfExistsDebug();
+                    imageLoadedCallback = null;
+                }
+            }
+
+            //Release your own unmanaged resources here.
+            //You should not access any managed member here except static instance.
+            //because the execution order of Finalizes is non-deterministic.
+            CancelAll();
+
+            base.Dispose(type);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<object, ImageLoadedEventArgs> ImageLoaded
+        {
+            add
+            {
+                if (imageLoadedEventHandler == null)
+                {
+                    imageLoadedCallback = OnImageLoaded;
+                    // TODO : Implement here!
+                    NDalicPINVOKE.ThrowExceptionIfExists();
+                }
+                imageLoadedEventHandler += value;
+            }
+
+            remove
+            {
+                imageLoadedEventHandler -= value;
+                if (imageLoadedEventHandler == null && imageLoadedCallback != null)
+                {
+                    // TODO : Implement here!
+                    NDalicPINVOKE.ThrowExceptionIfExists();
+                    imageLoadedCallback = null;
+                }
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public class ImageLoadedEventArgs : EventArgs
+        {
+            public uint LoadingTaskId { get; internal set; }
+            public PixelData PixelData { get; internal set; }
+        }
+
+        private void OnImageLoaded(uint loadingTaskId, IntPtr pixelData)
+        {
+            ImageLoadedEventArgs e = new ImageLoadedEventArgs();
+            e.LoadingTaskId = loadingTaskId;
+            e.PixelData = new PixelData(pixelData, false);
+
+            imageLoadedEventHandler?.Invoke(this, e);
+        }
     }
 }
