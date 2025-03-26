@@ -28,6 +28,9 @@ namespace Tizen.NUI
             [global::System.Runtime.InteropServices.DllImport(NDalicPINVOKE.Lib, EntryPoint = "CSharp_Dali_Constraint_Apply")]
             public static extern void Apply(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+            [global::System.Runtime.InteropServices.DllImport(NDalicPINVOKE.Lib, EntryPoint = "CSharp_Dali_Constraint_ApplyPost")]
+            public static extern void ApplyPost(global::System.Runtime.InteropServices.HandleRef jarg1);
+
             [global::System.Runtime.InteropServices.DllImport(NDalicPINVOKE.Lib, EntryPoint = "CSharp_Dali_Constraint_Remove")]
             public static extern void Remove(global::System.Runtime.InteropServices.HandleRef jarg1);
 
@@ -55,6 +58,8 @@ namespace Tizen.NUI
 
             [global::System.Runtime.InteropServices.DllImport(NDalicPINVOKE.Lib, EntryPoint = "CSharp_Dali_RelativeConstraintWithParentFloat_New")]
             public static extern global::System.IntPtr NewRelativeConstraintWithParentFloat(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, float jarg4);
+
+            // Constraint Function
         }
     }
 }

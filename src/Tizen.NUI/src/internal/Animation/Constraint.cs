@@ -15,26 +15,26 @@
  *
  */
 
-using System.ComponentModel;
+using global::System;
+using global::System.ComponentModel;
+using global::System.Runtime.InteropServices;
 namespace Tizen.NUI
 {
-    using global::System;
-    using global::System.Runtime.InteropServices;
-
     /// <summary>
     /// An abstract base class for Constraints.
     /// This class only use for inhouse currently.
-    /// 
+    ///
     /// This can be used to constrain a property of an object, after animations have been applied.
     /// Constraints are applied in the following order:
     ///  - Constraints are applied to on-stage views in a depth-first traversal.
     ///  - For each view, the constraints are applied in the same order as the calls to Apply().
-    ///  - Constraints are not applied to off-stage views.
-    /// 
+    ///
+    /// Constraints are not applied to off-stage views.
+    ///
     /// Create a constraint using one of the New method depending on the type of callback functions used.
-    /// 
+    ///
     /// Note : This function will called every frame. Maybe reduce performance if you applyed too many constraints.
-    /// 
+    ///
     /// TODO : AddSource(ConstraintSource); API need to be implemented.
     ///   To implement this, we have to bind ConstraintSource.
     /// TODO : Currently We don't support custom functions.
@@ -42,28 +42,19 @@ namespace Tizen.NUI
     /// </summary>
     internal class Constraint : BaseHandle
     {
-        internal Constraint(IntPtr cPtr, bool cMemoryOwn) : base(cPtr, cMemoryOwn)
+        static Constraint GenerateConstraint()
+        {
+            Constraint ret;
+            // TODO : Implement here
+            return ret;
+        }
+        internal Constraint(IntPtr cPtr, bool cMemoryOwn) : this(cPtr, cMemoryOwn, cMemoryOwn)
         {
         }
 
-        /// <summary>
-        /// Apply current constraint.
-        /// Constraint will work until Remove called.
-        /// </summary>
-        internal void Apply()
+        internal Constraint(IntPtr cPtr, bool cMemoryOwn, bool cRegister) : base(cPtr, cMemoryOwn, cRegister)
         {
-            Interop.Constraint.Apply(SwigCPtr);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
         }
-        /// <summary>
-        /// Remove current constraint.
-        /// </summary>
-        internal void Remove()
-        {
-            Interop.Constraint.Remove(SwigCPtr);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
-        }
-
 
         /// <summary>
         /// Remove action. Determine the target values action after remove current constriant.
@@ -74,32 +65,74 @@ namespace Tizen.NUI
             set => Interop.Constraint.SetRemoveAction(SwigCPtr, (int)value);
             get => (RemoveActionType) Interop.Constraint.GetRemoveAction(SwigCPtr);
         }
-        
+
         /// <summary>
-        /// Tag number. It will be useful when you want to seperate constraints
+        /// Tag number. It will be useful when you want to seperate constraints.
+        /// We can only use [ConstraintTagRanges.TagMin ConstraintTagRanges.TagMax].
         /// </summary>
+        /// <exception cref="ArgumentException"> Thrown when the tag value out of ranges. </exception>
         internal uint Tag
         {
-            set => Interop.Constraint.SetTag(SwigCPtr, value);
+            set
+            {
+                if (value > ConstraintTagRanges.TagMax)
+                {
+                    throw new ArgumentException($"The given tag '{value}' is bigger than maximum tag {ConstraintTagRanges.TagMax}");
+                }
+                Interop.Constraint.SetTag(SwigCPtr, value);
+            }
             get => Interop.Constraint.GetTag(SwigCPtr);
+        }
+
+        /// <summary>
+        /// Apply current constraint.
+        /// Constraint will work until Remove called.
+        /// </summary>
+        internal void Apply()
+        {
+            Interop.Constraint.Apply(SwigCPtr);
+            NDalicPINVOKE.ThrowExceptionIfExists();
+        }
+
+        /// <summary>
+        /// Apply current constraint after transform update finished.
+        /// Constraint will work until Remove called.
+        /// </summary>
+        /// <remarks>
+        /// Transform relative properties (e.g. Size, Position, Orientation) will not be changed this frame.
+        /// </remarks>
+        internal void ApplyPost()
+        {
+            Interop.Constraint.ApplyPost(SwigCPtr);
+            NDalicPINVOKE.ThrowExceptionIfExists();
+        }
+
+        /// <summary>
+        /// Remove current constraint.
+        /// </summary>
+        internal void Remove()
+        {
+            Interop.Constraint.Remove(SwigCPtr);
+            NDalicPINVOKE.ThrowExceptionIfExists();
         }
 
         /// <summary>
         /// Get constrainted target object
         /// </summary>
-        internal BaseHandle GetTargetObject()
+        internal Animatable GetTargetObject()
         {
-            BaseHandle handle = new BaseHandle(Interop.Constraint.GetTargetObject(SwigCPtr), true);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
+            Animatable handle = new Animatable(Interop.Constraint.GetTargetObject(SwigCPtr), true);
+            NDalicPINVOKE.ThrowExceptionIfExists();
             return handle;
         }
+
         /// <summary>
         /// Get constrainted target property index
         /// </summary>
-        internal int GetTargetPropert()
+        internal int GetTargetPropertyIndex()
         {
             int index = Interop.Constraint.GetTargetProperty(SwigCPtr);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
+            NDalicPINVOKE.ThrowExceptionIfExists();
             return index;
         }
 
@@ -119,6 +152,7 @@ namespace Tizen.NUI
                 //Called by User
                 //Release your own managed resources here.
                 //You should release all of your own disposable objects here.
+                Remove();
             }
             base.Dispose(type);
         }
@@ -128,25 +162,7 @@ namespace Tizen.NUI
         protected override void ReleaseSwigCPtr(HandleRef swigCPtr)
         {
             Interop.Constraint.DeleteConstraint(swigCPtr);
-            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
-        }
-        
-        /// <summary>
-        /// Determinate how objects property will be when constraint removed.
-        /// Default is Bake.
-        /// </summary>
-        internal enum RemoveActionType
-        {
-            /// <summary>
-            /// Target objects property will bake when constraint removed.
-            /// </summary>
-            [EditorBrowsable(EditorBrowsableState.Never)]
-            Bake,
-            /// <summary>
-            /// Target objects property will be original value when constraint removed.
-            /// </summary>
-            [EditorBrowsable(EditorBrowsableState.Never)]
-            Discard,
+            NDalicPINVOKE.ThrowExceptionIfExists();
         }
     }
 }
