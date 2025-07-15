@@ -721,7 +721,7 @@ namespace Tizen.NUI
             public bool Result { get; set; }
         }
 
-        internal global::System.Runtime.InteropServices.HandleRef SwigCPtr
+        public global::System.Runtime.InteropServices.HandleRef SwigCPtr
         {
             get
             {
