@@ -527,6 +527,10 @@ class PerformanceTestExample : NUIApplication
     [STAThread] // Forces app to use one thread to access NUI
     static void Main(string[] args)
     {
+        Tizen.Log.Error("NUI", "Preload!\n");
+        NUIApplication.Preload();
+        Tizen.Log.Error("NUI", "Preload done!\n");
+
         PerformanceTestExample example = new PerformanceTestExample();
         example.Run(args);
     }

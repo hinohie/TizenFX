@@ -295,7 +295,8 @@ namespace Tizen.NUI.BaseComponents
             // Do not call View.Preload(), since we already call it
             if (NUIApplication.SupportPreInitializedCreation)
             {
-                using var temp = new TextLabel();
+                // TODO : Since we should not call ThemeManager at Preload timing, we could not create TextLabel. Open it later.
+                // using var temp = new TextLabel();
             }
 
             Property.Preload();
