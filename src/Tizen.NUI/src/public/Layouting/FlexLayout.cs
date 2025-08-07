@@ -840,7 +840,7 @@ namespace Tizen.NUI
         private void measureChild(global::System.IntPtr childPtr, float width, int measureModeWidth, float height, int measureModeHeight, out MeasuredSize measureSize)
         {
             // We need to measure child layout
-            View child = Registry.GetManagedBaseHandleFromNativePtr(childPtr) as View;
+            View child = Registry.GetManagedBaseHandleFromRefObject(childPtr) as View;
             // independent child will be measured in LayoutGroup.OnMeasureIndependentChildren().
             if (child == null || child.ExcludeLayouting || !child.Visibility )
             {
