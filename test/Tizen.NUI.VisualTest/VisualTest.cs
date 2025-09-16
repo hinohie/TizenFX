@@ -46,6 +46,10 @@ class VisualTestExample : NUIApplication
 
     private global::System.Collections.Generic.List<Tizen.NUI.Visuals.VisualBase> visuals = new();
 
+    Layer layer1;
+    Layer layer2;
+    Capture capture;
+
     protected void CreateScene()
     {
         mWindow = Window.Instance;
@@ -89,7 +93,64 @@ class VisualTestExample : NUIApplication
         mWindow.Add(dummyView);
         mWindow.Add(rootView);
 
-        mWindow.GetOverlayLayer().Add(infoLabel);
+        layer1 = new Layer();
+        mWindow.AddLayer(layer1);
+
+        layer1.Viewport = new Rectangle(100, 100, 300, 300);
+        // layer1.Viewport = new Rectangle(50, 50, 430, 750);
+
+        {
+            var view1 = new View()
+            {
+                BackgroundColor = Color.Red,
+                SizeWidth = 300,
+                SizeHeight = 300,
+                PositionX = 0,
+                PositionY = 0,
+            };
+            layer1.Add(view1);
+            var view2 = new View()
+            {
+                BackgroundColor = Color.Green,
+                SizeWidth = 100,
+                SizeHeight = 100,
+                PositionX = 150,
+                PositionY = 150,
+            };
+            layer1.Add(view2);
+            var view3 = new View()
+            {
+                SizeWidth = 50,
+                SizeHeight = 50,
+                PositionX = 125,
+                PositionY = 125,
+            };
+            BackgroundBlurEffect effect = RenderEffect.CreateBackgroundBlurEffect(30.0f);
+            // effect.BlurDownscaleFactor = 1.0f;
+            view3.SetRenderEffect(effect);
+            layer1.Add(view3);
+        }
+
+        layer2 = new Layer();
+        mWindow.AddLayer(layer2);
+
+        {
+            var view3 = new View()
+            {
+                SizeWidth = 175,
+                SizeHeight = 175,
+                PositionX = 50,
+                PositionY = 200,
+            };
+            BackgroundBlurEffect effect = RenderEffect.CreateBackgroundBlurEffect(30.0f);
+            // effect.BlurDownscaleFactor = 1.0f;
+            view3.SetRenderEffect(effect);
+            layer2.Add(view3);
+        }
+        // capture = new Capture();
+        // capture.Start(layer1, new Size(480, 800), "/tmp/wahaha.png");
+
+        //mWindow.GetOverlayLayer().Add(infoLabel);
 
         mWindow.KeyEvent += OnKeyEvent;
     }
