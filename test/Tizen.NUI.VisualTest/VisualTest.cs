@@ -481,7 +481,13 @@ class VisualTestExample : NUIApplication
     [global::System.STAThread] // Forces app to use one thread to access NUI
     static void Main(string[] args)
     {
-        VisualTestExample example = new VisualTestExample();
-        example.Run(args);
+        Tizen.Log.Error("NUI.Visuals", $"Tizen.NUI.NUIApplication.Preload()\n");
+        Tizen.NUI.NUIApplication.Preload();
+        Tizen.Log.Error("NUI.Visuals", $"Tizen.NUI.NUIApplication.Preload() done\n");
+        {
+            
+        }
+        // VisualTestExample example = new VisualTestExample();
+        // example.Run(args);
     }
 }

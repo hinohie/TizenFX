@@ -27,6 +27,7 @@ namespace WidgetTemplate
 {
     class RedWidget : Widget
     {
+        private TapGestureDetector tapGestureDetector;
         protected override void OnCreate(string contentInfo, Window window)
         {
             Tizen.Log.Info("NUI", "OnCreate(RedWidget) \n");
@@ -43,6 +44,10 @@ namespace WidgetTemplate
             sampleLabel.SizeWidth = 300;
             sampleLabel.PivotPoint = PivotPoint.Center;
             mRootView.Add(sampleLabel);
+
+            tapGestureDetector = new TapGestureDetector();
+            tapGestureDetector.Attach(sampleLabel);
+            tapGestureDetector.Attach(mRootView);
 
             mAnimation = new Animation(1000);
             mAnimation.AnimateTo(sampleLabel, "PositionX", 300.0f);
@@ -171,6 +176,17 @@ namespace WidgetTemplate
 
         static void Main(string[] args)
         {
+            Tizen.Log.Info("NUI", "Preload\n");
+            Tizen.NUI.NUIApplication.Preload();
+            if(Tizen.NUI.NUIApplication.SupportPreInitializedCreation)
+            {
+                Tizen.Log.Info("NUI", "SupportPreInitializedCreation\n");
+                using var view = new View();
+
+                using TapGestureDetector tapGestureDetector = new TapGestureDetector();
+                tapGestureDetector.Attach(view);
+            }
+            Tizen.Log.Info("NUI", "Preload done\n");
             Dictionary<System.Type, string> widgetSet = new Dictionary<Type, string>();
             widgetSet.Add(typeof(RedWidget), "class1@Tizen.NUI.WidgetTest");
             widgetSet.Add(typeof(BlueWidget), "class2@Tizen.NUI.WidgetTest");
