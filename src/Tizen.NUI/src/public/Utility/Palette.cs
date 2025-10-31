@@ -174,16 +174,16 @@ namespace Tizen.NUI
             // NOTE: scaledBitmap can gets bitmap origin value and new bitmap instance as well
             //       When ScaleBitmap created newly it will be dispose below.
             //       otherwise it should not disposed because of this instance from user side.
-            bool resized = ScaleBitmapDown(pixelBuffer);
+            float scaleDownRatio = ScaleBitmapDown(pixelBuffer);
 
             // Region set
-            if (resized && region != null)
+            if (region != null && scaleDownRatio < 1.0f)
             {
-                double scale = pixelBuffer.GetWidth() / (double)pixelBuffer.GetHeight();
-                region.X = (int)Math.Floor(region.X * scale);
-                region.Y = (int)Math.Floor(region.Y * scale);
-                region.Width = Math.Min((int)Math.Ceiling(region.Width * scale), (int)pixelBuffer.GetWidth() );
-                region.Height = Math.Min((int)Math.Ceiling(region.Height * scale), (int)pixelBuffer.GetHeight());
+                region.X = (int)Math.Floor(region.X * scaleDownRatio);
+                region.Y = (int)Math.Floor(region.Y * scaleDownRatio);
+                region.Width = Math.Min((int)Math.Ceiling(region.Width * scaleDownRatio), (int)pixelBuffer.GetWidth());
+                region.Height = Math.Min((int)Math.Ceiling(region.Height * scaleDownRatio), (int)pixelBuffer.GetHeight());
+                Tizen.Log.Info("Palette", "Region also resized as " + scaleDownRatio + " ratio : (" + region.X + " " + region.Y + " " + region.Width + " " + region.Height + ")" + "\n");
             }
 
             // Now generate a Quantizer from the Bitmap
@@ -398,14 +398,14 @@ namespace Tizen.NUI
         /// calculateBitmapMinDimensionpx. If bitmap is smaller than this, than it
         /// is returned.
         /// </summary>
-        private static bool ScaleBitmapDown(PixelBuffer pixelBuffer)
+        private static float ScaleBitmapDown(PixelBuffer pixelBuffer)
         {
             int minDimension = Math.Min((int)pixelBuffer.GetWidth(), (int)pixelBuffer.GetHeight());
 
             if (minDimension <= calculateBitmapMinDimension)
             {
                 // If the bitmap is small enough already, just return it
-                return false;
+                return 1.0f;
             }
 
             float scaleRatio = calculateBitmapMinDimension / (float)minDimension;
@@ -416,7 +416,7 @@ namespace Tizen.NUI
             Tizen.Log.Info("Palette", "pixelBuffer resize to  " + width + " " + height + "\n");
             pixelBuffer.Resize((ushort)width, (ushort)height);
 
-            return true;
+            return scaleRatio;
         }
 
         private static float CreateComparisonValue(float saturation, float targetSaturation,

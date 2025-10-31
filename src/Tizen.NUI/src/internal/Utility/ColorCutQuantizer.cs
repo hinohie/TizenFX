@@ -106,37 +106,59 @@ namespace Tizen.NUI
             int width;
             int height;
             int[] pixels;
-            int i, j, index = 0;
+            int pixelStartX, pixelStartY;
+
+            int pixelWidth = (int)pixelBuffer.GetWidth();
+            int pixelHeight = (int)pixelBuffer.GetHeight();
 
             if (region == null)
             {
-                width = (int)pixelBuffer.GetWidth(); height = (int)pixelBuffer.GetHeight(); i = 0; j = 0;
+                width = (int)pixelBuffer.GetWidth();
+                height = (int)pixelBuffer.GetHeight();
+                pixelStartX = 0;
+                pixelStartY = 0;
             }
 
             else
             {
-                width = region.Width; height = region.Height; i = region.X; j = region.Y;
+                pixelStartX = Math.Max(Math.Min(region.X, pixelWidth), 0);
+                pixelStartY = Math.Max(Math.Min(region.Y, pixelHeight), 0);
+                width = Math.Max(Math.Min(region.Width, pixelWidth - pixelStartX), 0);
+                height = Math.Max(Math.Min(region.Height, pixelHeight - pixelStartY), 0);
             }
 
-            Tizen.Log.Info("Palette", "Get pixels raw data from (" + i + " " + j + " " + width + " " + height + ")" + "\n");
+            Tizen.Log.Info("Palette", "Get pixels raw data from (" + pixelStartX + " " + pixelStartY + " " + width + " " + height + ")" + "\n");
 
             pixels = new int[width * height];
             PixelFormat format = pixelBuffer.GetPixelFormat();
             int pixelLength = (int)ColorUtils.GetBytesPerPixel(format);
             IntPtr bufferIntPtr = pixelBuffer.GetBuffer();
+            int pixelStrideBytes = (int)pixelBuffer.GetStrideBytes();
+            if (pixelStrideBytes == 0)
+            {
+                pixelStrideBytes = pixelLength * pixelWidth;
+            }
 
             unsafe
             {
+                int index = 0;
+
                 byte *rawdata = (byte *)bufferIntPtr.ToPointer();
-                int totalLength = width * height * pixelLength;
-                for (i = 0; i < totalLength; i += pixelLength)
+                for (int pi = pixelStartY; pi < pixelStartY + height; ++pi)
                 {
-                    //RGB888
-                    if (pixelLength == 3)
-                        pixels[index++] = (255 & 0xff) << 24 | (rawdata[i] & 0xff) << 16 | (rawdata[i+1] & 0xff) << 8 | (rawdata[i+2] & 0xff);
-                    //RGBA8888
-                    else
-                        pixels[index++] = (rawdata[i + 3]  & 0xff) << 24 | (rawdata[i] & 0xff) << 16 | (rawdata[i+1] & 0xff) << 8 | (rawdata[i+2] & 0xff);
+                    for(int pj = pixelStartX; pj < pixelStartX + width; ++pj)
+                    {
+                        // Pixel color infomation is in rawdata[rawDataIndex] ~ rawdata[rawDataIndex + pixelLength - 1]
+                        int rawDataIndex = pi * pixelStrideBytes + pj * pixelLength;
+
+                        // TODO : Support more pixel formats!
+                        //RGB888
+                        if (pixelLength == 3)
+                            pixels[index++] = (255 & 0xff) << 24 | (rawdata[rawDataIndex + 0] & 0xff) << 16 | (rawdata[rawDataIndex + 1] & 0xff) << 8 | (rawdata[rawDataIndex + 2] & 0xff);
+                        //RGBA8888
+                        else
+                            pixels[index++] = (rawdata[rawDataIndex + 3]  & 0xff) << 24 | (rawdata[rawDataIndex + 0] & 0xff) << 16 | (rawdata[rawDataIndex + 1] & 0xff) << 8 | (rawdata[rawDataIndex + 2] & 0xff);
+                    }
                 }
             }
 
