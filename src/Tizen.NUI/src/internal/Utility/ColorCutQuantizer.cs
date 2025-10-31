@@ -101,33 +101,12 @@ namespace Tizen.NUI
         /// <summary>
         /// Factory-method to generate a ColorCutQuantizer from a  PixelBuffer object.
         /// </summary>
-        public static ColorCutQuantizer FromBitmap(PixelBuffer pixelBuffer, Rectangle region, int maxColors)
+        public static ColorCutQuantizer FromBitmap(PixelBuffer pixelBuffer, int maxColors)
         {
-            int width;
-            int height;
+            int width = (int)pixelBuffer.GetWidth();
+            int height = (int)pixelBuffer.GetHeight();
             int[] pixels;
             int pixelStartX, pixelStartY;
-
-            int pixelWidth = (int)pixelBuffer.GetWidth();
-            int pixelHeight = (int)pixelBuffer.GetHeight();
-
-            if (region == null)
-            {
-                width = (int)pixelBuffer.GetWidth();
-                height = (int)pixelBuffer.GetHeight();
-                pixelStartX = 0;
-                pixelStartY = 0;
-            }
-
-            else
-            {
-                pixelStartX = Math.Max(Math.Min(region.X, pixelWidth), 0);
-                pixelStartY = Math.Max(Math.Min(region.Y, pixelHeight), 0);
-                width = Math.Max(Math.Min(region.Width, pixelWidth - pixelStartX), 0);
-                height = Math.Max(Math.Min(region.Height, pixelHeight - pixelStartY), 0);
-            }
-
-            Tizen.Log.Info("Palette", "Get pixels raw data from (" + pixelStartX + " " + pixelStartY + " " + width + " " + height + ")" + "\n");
 
             pixels = new int[width * height];
             PixelFormat format = pixelBuffer.GetPixelFormat();
@@ -136,7 +115,7 @@ namespace Tizen.NUI
             int pixelStrideBytes = (int)pixelBuffer.GetStrideBytes();
             if (pixelStrideBytes == 0)
             {
-                pixelStrideBytes = pixelLength * pixelWidth;
+                pixelStrideBytes = pixelLength * width;
             }
 
             unsafe
@@ -144,12 +123,12 @@ namespace Tizen.NUI
                 int index = 0;
 
                 byte *rawdata = (byte *)bufferIntPtr.ToPointer();
-                for (int pi = pixelStartY; pi < pixelStartY + height; ++pi)
+                if(pixelStrideBytes == pixelLength * width)
                 {
-                    for(int pj = pixelStartX; pj < pixelStartX + width; ++pj)
+                    int rawDataIndex = 0;
+                    while(index < width * height)
                     {
                         // Pixel color infomation is in rawdata[rawDataIndex] ~ rawdata[rawDataIndex + pixelLength - 1]
-                        int rawDataIndex = pi * pixelStrideBytes + pj * pixelLength;
 
                         // TODO : Support more pixel formats!
                         //RGB888
@@ -158,6 +137,28 @@ namespace Tizen.NUI
                         //RGBA8888
                         else
                             pixels[index++] = (rawdata[rawDataIndex + 3]  & 0xff) << 24 | (rawdata[rawDataIndex + 0] & 0xff) << 16 | (rawdata[rawDataIndex + 1] & 0xff) << 8 | (rawdata[rawDataIndex + 2] & 0xff);
+                        
+                        rawDataIndex += pixelLength;
+                    }
+
+                }
+                else
+                {
+                    for (int pi = 0; pi <  height; ++pi)
+                    {
+                        for(int pj = 0; pj < width; ++pj)
+                        {
+                            // Pixel color infomation is in rawdata[rawDataIndex] ~ rawdata[rawDataIndex + pixelLength - 1]
+                            int rawDataIndex = pi * pixelStrideBytes + pj * pixelLength;
+
+                            // TODO : Support more pixel formats!
+                            //RGB888
+                            if (pixelLength == 3)
+                                pixels[index++] = (255 & 0xff) << 24 | (rawdata[rawDataIndex + 0] & 0xff) << 16 | (rawdata[rawDataIndex + 1] & 0xff) << 8 | (rawdata[rawDataIndex + 2] & 0xff);
+                            //RGBA8888
+                            else
+                                pixels[index++] = (rawdata[rawDataIndex + 3]  & 0xff) << 24 | (rawdata[rawDataIndex + 0] & 0xff) << 16 | (rawdata[rawDataIndex + 1] & 0xff) << 8 | (rawdata[rawDataIndex + 2] & 0xff);
+                        }
                     }
                 }
             }
