@@ -186,10 +186,89 @@ class PerformanceTestExample : NUIApplication
 
         mCreationStatistic = new Statistic();
 
-        timer.Start();
+        //timer.Start();
+
+        ASDF(0.0f);
+        ASDF(200.0f);
+        ASDF(400.0f);
 
         mWindow.KeyEvent += OnKeyEvent;
     }
+
+    void ASDF(float offset)
+    {
+        var layout = new View
+        {
+            PositionX = offset,
+            PositionY = 200.0f,
+            SizeWidth = 300.0f,
+            SizeHeight =300.0f,
+            Layout = new LinearLayout
+            {
+                LinearOrientation = LinearLayout.Orientation.Vertical,
+            },
+            CornerRadius = 150.0f,
+            BackgroundColor = Color.Green,
+            //BorderlineColor = Color.Red,
+            //BorderlineWidth = 1.0f,
+            ClippingMode = ClippingModeType.ClipChildren,
+        };
+
+        mWindow.Add(layout);
+
+        var box = new View
+        {
+            WidthSpecification = LayoutParamPolicies.MatchParent,
+            SizeHeight = 50.0f,
+            BackgroundColor = Color.Blue,
+        };
+        layout.Add(box);
+
+        var box2 = new View
+        {
+            SizeWidth = 80.0f,
+            SizeHeight = 80.0f,
+            PositionX = 110.0f,
+            PositionY = -40.0f,
+            BackgroundColor = Color.Red,
+        };
+        box.Add(box2);
+
+        Tizen.NUI.Visuals.ColorVisual colorVisual1 = new Tizen.NUI.Visuals.ColorVisual()
+        {
+            Color = new Color(0.5f, 0.5f, 0.5f, 0.9f),
+
+            Width = 30.0f,
+            Height = 100.0f,
+
+            WidthPolicy = VisualTransformPolicyType.Absolute,
+            HeightPolicy = VisualTransformPolicyType.Absolute,
+            OffsetXPolicy = VisualTransformPolicyType.Absolute,
+            OffsetYPolicy = VisualTransformPolicyType.Absolute,
+
+            Origin = Visual.AlignType.TopCenter,
+            PivotPoint = Visual.AlignType.CenterBegin,
+        };
+
+        Tizen.NUI.Visuals.ColorVisual colorVisual2 = new Tizen.NUI.Visuals.ColorVisual()
+        {
+            Color = new Color(0.5f, 0.5f, 0.5f, 0.9f),
+
+            Width = 100.0f,
+            Height = 30.0f,
+
+            WidthPolicy = VisualTransformPolicyType.Absolute,
+            HeightPolicy = VisualTransformPolicyType.Absolute,
+            OffsetXPolicy = VisualTransformPolicyType.Absolute,
+            OffsetYPolicy = VisualTransformPolicyType.Absolute,
+
+            Origin = Visual.AlignType.TopCenter,
+            PivotPoint = Visual.AlignType.CenterBegin,
+        };
+        layout.AddVisual(colorVisual1, ViewVisualContainerRange.Content);
+        layout.AddVisual(colorVisual2, ViewVisualContainerRange.Content);
+    }
+
     bool OnTick(object o, EventArgs e)
     {
         CreateColumnView();

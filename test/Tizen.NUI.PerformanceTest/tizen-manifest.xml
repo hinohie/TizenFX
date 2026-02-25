@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="6" package="org.tizen.example.Tizen.NUI.PerformanceTest" version="1.0.0">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="6" package="Tizen.NUI.StencilTest" version="1.0.0">
   <profile name="common" />
-  <ui-application appid="org.tizen.example.Tizen.NUI.PerformanceTest"
+  <ui-application appid="Tizen.NUI.StencilTest"
 					exec="PerformanceTest.dll"
 					type="dotnet-nui"
 					multiple="false"
