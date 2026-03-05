@@ -457,6 +457,8 @@ namespace Tizen.NUI.Samples
 
             PixelBuffer pixelBuffer = e.PixelBuffers[0];
 
+            pixelBuffer = ApplyGaussianBlur(pixelBuffer, 50.0f, 0.5f);
+
             // Copy the pixelData if we need to color picking.
             PixelData pixelData = colorPick ? pixelBuffer.CreatePixelData() : PixelBuffer.Convert(pixelBuffer);
 
@@ -599,6 +601,39 @@ namespace Tizen.NUI.Samples
             renderable.TextureSet.SetTexture(0u, texture);
 
             return renderable;
+        }
+
+        private static PixelBuffer dummyBuffer;
+        private static PixelBuffer ApplyGaussianBlur(PixelBuffer pixelBuffer, float blurRadius, float downscaleFactor)
+        {
+            downscaleFactor = Math.Min(1.0f, Math.Max(0.0f, downscaleFactor));
+
+            int width = (int)Math.Round((int)pixelBuffer.GetWidth() * downscaleFactor);
+            int height = (int)Math.Round((int)pixelBuffer.GetHeight() * downscaleFactor);
+            width = Math.Min(65535, Math.Max(1, width));
+            height = Math.Min(65535, Math.Max(1, height));
+
+            Tizen.Log.Info("NUITest", "pixelBuffer resize to  " + width + " " + height + " (downscaleFactor : " + downscaleFactor + ")\n");
+            pixelBuffer.Resize((ushort)width, (ushort)height);
+
+            if (pixelBuffer.GetPixelFormat() != PixelFormat.RGBA8888)
+            {
+                if (dummyBuffer == null)
+                {
+                    dummyBuffer = new PixelBuffer(1u, 1u, PixelFormat.A8);
+                    IntPtr bufferIntPtr = dummyBuffer.GetBuffer();
+                    unsafe
+                    {
+                        byte *rawdata = (byte *)bufferIntPtr.ToPointer();
+                        rawdata[0] = 0xff;
+                    }
+                }
+                Tizen.Log.Info("NUITest", "pixelBuffer give dummy alpha mask if it is not RGBA8888\n");
+                pixelBuffer.ApplyMask(dummyBuffer);
+            }
+            Tizen.Log.Info("NUITest", "pixelBuffer ApplyGaussianBlur with blur radius " + blurRadius + "\n");
+            pixelBuffer.ApplyGaussianBlur(blurRadius);
+            return pixelBuffer;
         }
     }
 }
