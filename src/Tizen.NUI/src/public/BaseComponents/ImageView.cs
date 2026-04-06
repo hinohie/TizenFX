@@ -2357,7 +2357,7 @@ namespace Tizen.NUI.BaseComponents
 
         private void SetResourceUrl(string value)
         {
-            if (_resourceUrl != ConvertResourceUrl(ref value))
+            if (allowToCreateVisualEmptyUrl || _resourceUrl != ConvertResourceUrl(ref value))
             {
                 if (string.IsNullOrEmpty(value))
                 {
